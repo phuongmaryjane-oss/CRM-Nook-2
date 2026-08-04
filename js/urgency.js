@@ -15,7 +15,10 @@ const Urgency = (() => {
 
   function parseStatuses(statusField) {
     if (!statusField) return [];
-    return String(statusField).split(',').map(s => s.trim()).filter(Boolean);
+    // Lưu ý: KHÔNG tách bằng dấu phẩy — nhiều tên bước trong CONFIG.STATUSES tự nó
+    // chứa dấu phẩy (VD "Tiếp nhận Lead, khảo sát nhu cầu, lên 2D"), nên dùng dấu
+    // '|' làm ký tự phân cách nhiều bước đồng thời trong 1 khách hàng.
+    return String(statusField).split('|').map(s => s.trim()).filter(Boolean);
   }
 
   function daysSince(dateStr) {

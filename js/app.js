@@ -1,52 +1,79 @@
 // ============================================
-// CẤU HÌNH — sửa các giá trị bên dưới sau khi deploy Apps Script
+// APP SHELL — điều hướng giữa 6 module
 // ============================================
-const CONFIG = {
-  // DEMO_MODE = true: dùng dữ liệu ảo trong js/mock-data.js, không cần Apps Script.
-  // Khi Sheet + Apps Script đã deploy và điền API_URL bên dưới, đổi thành false.
-  DEMO_MODE: true,
+const NAV_ITEMS = [
+  { id: 'customers', label: 'Khách hàng', icon: '👤', ready: true },
+  { id: 'kanban',    label: 'Kanban',     icon: '📋', ready: true },
+  { id: 'staff',     label: 'Nhân sự',    icon: '🧑‍💼', ready: false },
+  { id: 'calendar',  label: 'Lịch',       icon: '📅', ready: true },
+  { id: 'dashboard', label: 'Báo cáo',    icon: '📊', ready: true },
+  { id: 'finance',   label: 'Tài chính',  icon: '💰', ready: false },
+];
 
-  // URL /exec sau khi Deploy Web App trong Apps Script
-  API_URL: 'https://script.google.com/macros/s/DÁN_DEPLOYMENT_ID/exec',
+const App = (() => {
+  let current = 'customers';
 
-  // Người dùng hiện tại (tạm thời chọn thủ công, sau có thể làm login)
-  CURRENT_USER: localStorage.getItem('crm_current_user') || '',
+  function init() {
+    if (!CONFIG.CURRENT_USER) {
+      const name = prompt('Nhập tên của bạn để bắt đầu (dùng để ghi nhận người thao tác):');
+      if (name) {
+        CONFIG.CURRENT_USER = name;
+        localStorage.setItem('crm_current_user', name);
+      }
+    }
+    renderNav();
+    navigate('customers');
+    registerServiceWorker();
+  }
 
-  // ============================================
-  // QUY TRÌNH CHÍNH THỨC — 9 bước (đã bỏ 3 bước xử lý ngoài CRM)
-  // requireAssignee: true = bắt buộc chọn người phụ trách khi chuyển sang bước này
-  // role: vai trò/phòng ban phụ trách mặc định (dùng để lọc dropdown chọn người)
-  // ============================================
-  STATUSES: [
-    { name: 'Tiếp nhận Lead, khảo sát nhu cầu, lên 2D', role: 'IC',          requireAssignee: false, color: '#8A9A87' },
-    { name: 'Báo giá',                                  role: 'IC',          requireAssignee: false, color: '#7FA3B0' },
-    { name: 'Trao đổi & cọc phí thiết kế',              role: 'IC',          requireAssignee: false, color: '#6B8CAE' },
-    { name: 'Thiết kế 3D',                              role: 'NV Thiết kế', requireAssignee: true,  color: '#A67C52' },
-    { name: 'Khảo sát, trình mẫu vật liệu',             role: 'Kỹ thuật',    requireAssignee: true,  color: '#B08968' },
-    { name: 'Báo giá thi công & cọc 50% hợp đồng',      role: 'IC',          requireAssignee: false, color: '#C9A15A' },
-    { name: 'Gia công, lắp đặt tại xưởng',              role: 'Kỹ thuật',    requireAssignee: false, color: '#C08552' },
-    { name: 'Lắp đặt, bàn giao',                        role: 'Kỹ thuật',    requireAssignee: false, color: '#9C7A4E' },
-    { name: 'Quyết toán với khách hàng',                role: 'IC',          requireAssignee: false, color: '#6B9080' },
-  ],
+  function renderNav() {
+    const nav = document.getElementById('nav-items');
+    nav.innerHTML = NAV_ITEMS.map(item => `
+      <div class="nav-item ${item.id === current ? 'active' : ''}" onclick="App.navigate('${item.id}')">
+        <span>${item.icon}</span><span>${item.label}</span>
+      </div>
+    `).join('');
+  }
 
-  // Trạng thái đặc biệt — nằm ngoài 9 bước Kanban chính, không bắt buộc gán người
-  SPECIAL_STATUS: { name: 'Không phản hồi/Tạm ngưng', color: '#A0A0A0' },
+  function navigate(id) {
+    current = id;
+    renderNav();
+    const item = NAV_ITEMS.find(x => x.id === id);
+    if (!item.ready) {
+      document.getElementById('view-content').innerHTML = `
+        <div class="placeholder-view">
+          <h2>${item.icon} ${item.label}</h2>
+          <p>Phần này đang chờ chị xác nhận quy trình / thông tin chi tiết để xây dựng đúng nghiệp vụ.</p>
+        </div>`;
+      return;
+    }
+    if (id === 'customers') CustomersModule.load();
+    if (id === 'kanban') KanbanModule.load();
+    if (id === 'calendar') CalendarModule.load();
+    if (id === 'dashboard') DashboardModule.load();
+  }
 
-  // Điểm khẩn cấp chỉ tính đến (và bao gồm) bước này — ngay khi khách được
-  // chuyển VÀO bước này, điểm khẩn cấp đóng băng vĩnh viễn
-  URGENCY_FREEZE_STATUS: 'Trao đổi & cọc phí thiết kế',
+  function setLoading(isLoading) {
+    let el = document.getElementById('loading-bar');
+    if (!el) return;
+    el.style.display = isLoading ? 'block' : 'none';
+  }
 
-  // Số lần liên hệ không phản hồi để gợi ý chuyển sang trạng thái đặc biệt
-  URGENCY_SUGGEST_PAUSE_ATTEMPTS: 5,
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+  }
 
-  // Thời gian đóng băng (snooze) sau khi bấm "Đã liên hệ - chờ khách rep", tính bằng giờ
-  URGENCY_SNOOZE_HOURS: 24,
-};
+  function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  }
 
-function statusIndex(name) {
-  return CONFIG.STATUSES.findIndex(s => s.name === name);
-}
+  return { init, navigate, setLoading, toast };
+})();
 
-// Ghi chú: bảng "Config" trong Google Sheet có thể dùng để nạp STATUSES động
-// thay vì hard-code ở đây — có thể nối vào sau nếu cần chỉnh sửa quy trình
-// thường xuyên mà không muốn sửa code.
+document.addEventListener('DOMContentLoaded', App.init);

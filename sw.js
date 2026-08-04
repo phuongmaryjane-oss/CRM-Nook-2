@@ -3,8 +3,12 @@
 // Cloud Messaging (FCM) + VAPID key — bước này làm ở giai đoạn sau khi các phần
 // chính đã ổn định (tương tự cách chị đã tìm hiểu FCM cho CRM Sheets trước đây).
 
-const CACHE_NAME = 'satelier-crm-v1';
-const CORE_ASSETS = ['./', './index.html', './css/style.css', './js/config.js', './js/api.js', './js/urgency.js', './js/customers.js', './js/kanban.js', './js/dashboard.js', './js/app.js'];
+const CACHE_NAME = 'satelier-crm-v2';
+const CORE_ASSETS = [
+  './', './index.html', './css/style.css',
+  './js/config.js', './js/mock-data.js', './js/api.js', './js/urgency.js',
+  './js/customers.js', './js/kanban.js', './js/calendar.js', './js/dashboard.js', './js/app.js',
+];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)));

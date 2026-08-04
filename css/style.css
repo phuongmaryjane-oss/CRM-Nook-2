@@ -228,6 +228,69 @@ tr.customer-row:hover { background: #FBFAF7; cursor: pointer; }
   box-shadow: var(--shadow);
 }
 
+/* ---------- Calendar (Phần 4 — Lịch) ---------- */
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(96px, auto);
+  gap: 6px;
+}
+.cal-cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cal-cell-out { background: var(--bg); opacity: .55; }
+.cal-cell-today { border-color: var(--sage-deep); box-shadow: 0 0 0 1px var(--sage-deep) inset; }
+.cal-cell-date { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 4px; }
+.cal-cell-today .cal-cell-date { color: var(--sage-deep); }
+.cal-cell-items { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
+.cal-chip {
+  font-size: 10.5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-chip:hover { background: #F0EEE7; }
+.cal-chip-time { color: var(--ink-soft); font-weight: 700; margin-right: 3px; }
+.cal-chip-overdue { border-color: var(--danger); color: var(--danger); }
+.cal-chip-done { opacity: .5; text-decoration: line-through; }
+.cal-more {
+  font-size: 10.5px;
+  color: var(--sage-deep);
+  cursor: pointer;
+  font-weight: 700;
+  padding: 1px 2px;
+}
+
+@media (max-width: 760px) {
+  .cal-grid { grid-auto-rows: minmax(64px, auto); }
+  .cal-cell-items { display: none; }
+  .cal-cell:has(.cal-more) .cal-cell-items,
+  .cal-cell-today .cal-cell-items { display: flex; }
+}
+
 @media (max-width: 760px) {
   .sidebar { position: fixed; left: -240px; z-index: 60; transition: left .2s; }
   .sidebar.open { left: 0; }

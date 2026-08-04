@@ -355,7 +355,7 @@ const CustomersModule = (() => {
       Source: get('#f-source'),
       ProjectValue: get('#f-value'),
       GhiChu: get('#f-ghichu'),
-      Status: statusNames.join(','),
+      Status: statusNames.join('|'),
       AssignedTo: JSON.stringify(assigneeMap),
       CreatedBy: CONFIG.CURRENT_USER,
     };

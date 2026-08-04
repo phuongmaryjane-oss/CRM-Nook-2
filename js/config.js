@@ -2,6 +2,10 @@
 // CẤU HÌNH — sửa các giá trị bên dưới sau khi deploy Apps Script
 // ============================================
 const CONFIG = {
+  // DEMO_MODE = true: dùng dữ liệu ảo trong js/mock-data.js, không cần Apps Script.
+  // Khi Sheet + Apps Script đã deploy và điền API_URL bên dưới, đổi thành false.
+  DEMO_MODE: true,
+
   // URL /exec sau khi Deploy Web App trong Apps Script
   API_URL: 'https://script.google.com/macros/s/DÁN_DEPLOYMENT_ID/exec',
 

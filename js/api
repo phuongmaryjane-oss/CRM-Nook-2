@@ -1,8 +1,10 @@
 // ============================================
 // API — giao tiếp với Google Apps Script backend
+// (DEMO_MODE = true trong config.js sẽ chuyển toàn bộ qua MockAPI - js/mock-data.js)
 // ============================================
 const API = {
   async get(action, params = {}) {
+    if (CONFIG.DEMO_MODE) return MockAPI.get(action, params);
     const qs = new URLSearchParams({ action, ...params }).toString();
     const res = await fetch(`${CONFIG.API_URL}?${qs}`);
     const json = await res.json();
@@ -11,6 +13,7 @@ const API = {
   },
 
   async post(action, data = {}) {
+    if (CONFIG.DEMO_MODE) return MockAPI.post(action, data);
     const res = await fetch(CONFIG.API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' }, // tránh CORS preflight với Apps Script

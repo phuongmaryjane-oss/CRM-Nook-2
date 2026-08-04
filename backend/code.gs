@@ -16,7 +16,9 @@
  *    CreatedAt | UpdatedAt | CreatedBy
  *
  *    Ghi chú cột:
- *    - Status: có thể chứa NHIỀU bước, phân cách bởi dấu phẩy (VD: "Thiết kế 3D,Báo giá thi công & cọc 50% hợp đồng")
+ *    - Status: có thể chứa NHIỀU bước, phân cách bởi ký tự '|' (VD: "Thiết kế 3D|Báo giá thi công & cọc 50% hợp đồng").
+ *      LƯU Ý: không dùng dấu phẩy để phân cách vì một số tên bước trong quy trình
+ *      (VD "Tiếp nhận Lead, khảo sát nhu cầu, lên 2D") tự nó đã chứa dấu phẩy.
  *    - AssignedTo: lưu dạng JSON, map {"Tên bước": "Tên nhân sự"} — VD: {"Thiết kế 3D":"Lan"}
  *    - GhiChu: ghi chú dài, không có nhắc hẹn (khác với tab Notes)
  *    - UrgencySnoozeUntil: thời điểm hết hạn tạm hoãn điểm khẩn cấp (ISO string), rỗng nếu không snooze
@@ -186,7 +188,7 @@ function assignStatus(data) {
   set_('UpdatedAt', nowStr_());
 
   const assigneeMap = JSON.parse(data.AssignedTo || '{}');
-  const toStatuses = String(data.ToStatus || '').split(',').map(s => s.trim()).filter(Boolean);
+  const toStatuses = String(data.ToStatus || '').split('|').map(s => s.trim()).filter(Boolean);
 
   // ghi lịch sử — 1 dòng cho mỗi bước trong danh sách trạng thái mới
   const histSh = sheet_('StatusHistory');

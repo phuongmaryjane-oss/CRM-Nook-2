@@ -5,7 +5,7 @@ const NAV_ITEMS = [
   { id: 'customers', label: 'Khách hàng', icon: '👤', ready: true },
   { id: 'kanban',    label: 'Kanban',     icon: '📋', ready: true },
   { id: 'staff',     label: 'Nhân sự',    icon: '🧑‍💼', ready: false },
-  { id: 'calendar',  label: 'Lịch',       icon: '📅', ready: false },
+  { id: 'calendar',  label: 'Lịch',       icon: '📅', ready: true },
   { id: 'dashboard', label: 'Báo cáo',    icon: '📊', ready: true },
   { id: 'finance',   label: 'Tài chính',  icon: '💰', ready: false },
 ];
@@ -49,6 +49,7 @@ const App = (() => {
     }
     if (id === 'customers') CustomersModule.load();
     if (id === 'kanban') KanbanModule.load();
+    if (id === 'calendar') CalendarModule.load();
     if (id === 'dashboard') DashboardModule.load();
   }
 
